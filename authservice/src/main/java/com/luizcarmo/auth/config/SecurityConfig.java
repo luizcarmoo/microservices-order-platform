@@ -8,35 +8,49 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-// Configuração de segurança para API REST.
+// Configuração de segurança da API.
+// Arquitetura stateless baseada em JWT.
 @Configuration
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-
-        // Sessões e CSRF desativados porque autenticação é feita via JWT (stateless).
         http
-                // API REST não usa sessão
+
+                // API REST não mantém sessão no servidor.
+                // Cada requisição deve trazer seu próprio token JWT.
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // desativa CSRF
+                // CSRF não é necessário em APIs stateless.
+                // Mantemos desativado para permitir chamadas REST simples.
                 .csrf(csrf -> csrf.disable())
 
-                // libera endpoints de autenticação
-                // Demais rotas exigem token válido.
+                // H2 Console usa iframe para renderização.
+                // É necessário liberar frameOptions para acesso no navegador.
+                .headers(headers ->
+                        headers.frameOptions(frame -> frame.disable())
+                )
+
+                // Regras de autorização da aplicação.
                 .authorizeHttpRequests(auth -> auth
+
+                        // Endpoints públicos de autenticação
                         .requestMatchers("/auth/**").permitAll()
+
+                        // Liberação do console H2 apenas para ambiente de desenvolvimento
+                        .requestMatchers("/h2-console/**").permitAll()
+
+                        // Qualquer outro endpoint exige autenticação válida
                         .anyRequest().authenticated()
                 )
 
-                // desativa login padrão
+                // API não utiliza formulário de login padrão do Spring Security.
                 .formLogin(form -> form.disable())
 
-                // desativa basic auth
+                // Toda autenticação será via JWT.
                 .httpBasic(basic -> basic.disable());
 
         return http.build();
@@ -44,6 +58,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
+        // Gera hash com salt automaticamente.
         return new BCryptPasswordEncoder();
     }
 }
