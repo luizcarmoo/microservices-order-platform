@@ -42,7 +42,7 @@ Arquitetura baseada em **Spring Cloud Microservices**.
       ▼                         ▼
     ┌──────────────┐ ┌──────────────┐
     │ Auth Service │ │ Future       │
-    │ │ │ Services │ | Orders       │
+    │ Services     │ | Orders       │
     │ JWT + Users  │ │ Notifications│
     └──────────────┘ └──────────────┘
 
