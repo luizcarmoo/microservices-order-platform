@@ -43,6 +43,9 @@ public class SecurityConfig {
                         // Liberação do console H2 apenas para ambiente de desenvolvimento
                         .requestMatchers("/h2-console/**").permitAll()
 
+                        // Liberação de acesso ao actuator
+                        .requestMatchers("/actuator/**").permitAll()
+
                         // Qualquer outro endpoint exige autenticação válida
                         .anyRequest().authenticated()
                 )
