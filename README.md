@@ -1,256 +1,344 @@
+# Microservices Order Platform
+
+[![Java](https://img.shields.io/badge/Java-17-red)]()
+[![Spring Boot](https://img.shields.io/badge/SpringBoot-3.x-brightgreen)]()
+[![Spring Cloud](https://img.shields.io/badge/SpringCloud-2023-blue)]()
+[![JWT](https://img.shields.io/badge/Auth-JWT-orange)]()
+[![Maven](https://img.shields.io/badge/Build-Maven-blue)]()
+[![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple)]()
+
+Plataforma backend baseada em **arquitetura de microserviços**, construída com **Java + Spring**, utilizando **API Gateway**, **Service Discovery** e **autenticação JWT**.
+
+Este projeto foi desenvolvido para demonstrar **boas práticas utilizadas em arquiteturas modernas de backend**, incluindo:
+
+- autenticação **stateless**
+- gateway centralizado
+- descoberta dinâmica de serviços
+- separação clara de responsabilidades
+- escalabilidade horizontal
+
+---
+
+# Arquitetura do Sistema
+
+Arquitetura baseada em **Spring Cloud Microservices**.
+
+            ┌──────────────┐
+            │    Client    │
+            └──────┬───────┘
+                   │
+                   ▼
+            ┌──────────────┐
+            │  API Gateway │
+            └──────┬───────┘
+                   │
+                   ▼
+            ┌──────────────┐
+            │  Eureka      │
+            │  Discovery   │
+            └──────┬───────┘
+                   │
+      ┌────────────┴────────────┐
+      ▼                         ▼
+    ┌──────────────┐ ┌──────────────┐
+    │ Auth Service │ │ Future       │
+    │ Services     │ | Orders       │
+    │ JWT + Users  │ │ Notifications│
+    └──────────────┘ └──────────────┘
+
+    
+---
+
+# Componentes da Arquitetura
+
+## API Gateway
+
+Responsável por:
+
+- centralizar o acesso à API
+- roteamento de requisições
+- validação de JWT
+- comunicação com Service Discovery
+
+Porta padrão: `http://localhost:8082`
+                       
+
+Exemplo de rota: `/auth/** → AUTH-SERVICE`
+
+Com Service Discovery: `lb://AUTH-SERVICE`
+
+---
+
+# Service Discovery
+
+O projeto utiliza **Service Discovery** com **Eureka Server**.
+
+Responsabilidades:
+
+- registrar serviços
+- permitir descoberta dinâmica
+- facilitar escalabilidade
+
+Dashboard: `http://localhost:8761`
+
+Serviços registrados: `AUTH-SERVICE` & `API-GATEWAY`
+
+
+---
+
 # Auth Service
 
-Microserviço de autenticação desenvolvido com **Java** e **Spring Boot**, responsável pelo registro de usuários, autenticação e geração de **JSON Web Tokens (JWT)** para acesso seguro aos demais serviços da arquitetura.
+Microserviço responsável por autenticação e gerenciamento de usuários.
 
-Este serviço faz parte de uma arquitetura de **microserviços**, utilizando **Service Discovery** e autenticação stateless.
+Funcionalidades:
 
----
+- registro de usuários
+- autenticação
+- geração de JWT
+- validação de credenciais
+- persistência de usuários
 
-## Arquitetura
-
-O Auth Service é responsável por:
-
-* Registro de novos usuários
-* Autenticação de usuários
-* Geração de token JWT
-* Validação de credenciais
-* Persistência de usuários
-* Integração com Service Discovery
-
-Arquitetura simplificada:
-
-```
-Client
-   │
-   ▼
-API Gateway
-   │
-   ▼
-Auth Service
-   │
-   ▼
-Database
-```
+Porta padrão: `http://localhost:8081`
 
 ---
 
-## Tecnologias utilizadas (atualmente)
+# Estrutura do Auth Service
 
-* Java 17
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* JWT (JSON Web Token)
-* H2 Database
-* Lombok
-* Maven
-* Service Discovery (Eureka)
-
----
-
-## Estrutura do Projeto
-
-```
 src/main/java/com/luizcarmo/auth
 
-config
- └ SecurityConfig
+      config
+      └ SecurityConfig
+      
+      controller
+      └ AuthController
+      
+      dto
+      ├ request
+      │ ├ LoginRequest
+      │ └ RegisterRequest
+      │
+      └ response
+        └ AuthResponse
+      
+      entity
+      └ User
+      
+      exception
+      ├ AuthException
+      └ GlobalExceptionHandler
+      
+      repository
+      └ UserRepository
 
-controller
- └ AuthController
-
-dto
- ├ request
- │   ├ LoginRequest
- │   └ RegisterRequest
- │
- └ response
-     └ AuthResponse
-
-entity
- └ User
-
-repository
- └ UserRepository
-
-service
- └ AuthService
-
-security
- └ JwtService
-
-exception
- └ GlobalExceptionHandler
-```
-
+       security
+      └ JwtService
+      
+      service
+      └ AuthService
+      
 ---
 
-## Funcionalidades
+# Endpoints da API
 
 ### Registro de usuário
 
-Cria um novo usuário no sistema.
+POST:
 
-```
-POST /auth/register
-```
+      /auth/register
 
-Body:
 
-```json
-{
-  "email": "user@email.com",
-  "password": "123456"
-}
-```
+Request:
 
-Resposta:
+JSON:
 
-```json
-{
-  "token": "jwt-token"
-}
-```
+      {
+        "email": "user@email.com",
+        "password": "123456"
+      }
 
----
-
-### Login
-
-Autentica um usuário existente e gera um token JWT.
-
-```
-POST /auth/login
-```
-
-Body:
-
-```json
-{
-  "email": "user@email.com",
-  "password": "123456"
-}
-```
 
 Resposta:
 
-```json
-{
-  "token": "jwt-token"
-}
-```
+JSON:
+
+      {
+        "token": "jwt-token"
+      }
+
+
+Login:
+
+JSON:
+
+      {
+        "email": "user@email.com",
+        "password": "123456"
+      }
+
+
+Resposta:
+
+JSON:
+
+      {
+        "token": "jwt-token"
+      }
+
 
 ---
 
-## Segurança
+# Segurança
 
-O sistema utiliza:
+### O sistema utiliza:
 
-* **BCrypt** para hash de senhas
-* **JWT** para autenticação stateless
-* **Spring Security** para controle de acesso
+BCrypt
+
+Hash seguro para armazenamento de senhas.
+
+JWT (JSON Web Token)
+
+Autenticação stateless.
 
 Fluxo de autenticação:
 
-```
-User Login
-   │
-   ▼
-Auth Service
-   │
-   ▼
-JWT Token gerado
-   │
-   ▼
-Token enviado no header Authorization
-```
+      User Login
+         │
+         ▼
+      Auth Service
+         │
+         ▼
+      JWT Token
+         │
+         ▼
+      Authorization: Bearer TOKEN
 
 ---
 
-## Validação de dados
+# Banco de Dados
 
-As requisições são validadas utilizando **Jakarta Validation**.
+### Durante desenvolvimento é utilizado:
 
-Exemplo:
+H2 Database (em memória)
 
-* `@Email`
-* `@NotBlank`
+Console disponível em: 
 
-Se os dados forem inválidos, a API retorna:
+      http://localhost:8081/h2-console
 
-```
-400 Bad Request
-```
+Configuração:
 
----
-
-## Banco de Dados
-
-Durante o desenvolvimento é utilizado **H2 Database em memória**.
-
-Console disponível em:
-
-```
-http://localhost:8081/h2-console
-```
-
-Configurações padrão:
-
-```
-JDBC URL: jdbc:h2:mem:testdb
-User: sa
-Password: (vazio)
-```
+      JDBC URL: jdbc:h2:mem:testdb
+      User: sa
+      Password: (vazio)
 
 ---
 
-## Service Discovery
+# Tecnologias Utilizadas
 
-O serviço se registra automaticamente no **Eureka Server**, permitindo que outros serviços descubram o Auth Service dinamicamente.
+### Backend
 
-Exemplo de configuração:
+- Java 17
+- Spring Boot
+- Spring Security
+- Spring Data JPA
+- Spring Cloud Gateway
+- Spring Cloud Netflix Eureka
 
-```
-spring.application.name=auth-service
-eureka.client.service-url.defaultZone=http://localhost:8761/eureka
-```
+### Segurança
 
----
+- JWT
+- BCrypt
 
-## Como executar o projeto
+### Ferramentas
 
-### Pré-requisitos
-
-* Java 17
-* Maven
-
-### Executar
-
-```
-mvn spring-boot:run
-```
-
-Ou executar a classe principal da aplicação.
-
-O serviço iniciará na porta:
-
-```
-http://localhost:8081
-```
+- Maven
+- Lombok
+- H2 Database
 
 ---
 
-## Próximos passos da arquitetura
+# Como executar o projeto
+## Pré-requisitos
 
-* API Gateway
-* Config Server
-* Outros microserviços (Tasks, Notifications)
-* Containerização com Docker
-* Observabilidade (Prometheus + Grafana)
+- Java 17
+- Maven
+
+#### 1 - Executar o Service Discovery
+
+      cd eurekaserver
+      mvn spring-boot:run
+
+Servidor disponível em:
+
+      http://localhost:8761
+
+#### 2 - Executar o Auth Service
+
+      cd authservice
+      mvn spring-boot:run
+
+Disponível em:
+
+      http://localhost:8081
+
+#### 3 - Executar o API Gateway
+
+      cd apigateway
+      mvn spring-boot:run
+
+Disponível em:
+
+      http://localhost:8082
 
 ---
 
-## Autor
+# Testando via Gateway
 
-Luiz Nicolau Pereira do Carmo
+Login:
 
-Estudante de Engenharia de Software focado em **desenvolvimento backend com Java e arquitetura de microserviços**.
+POST:
+
+      http://localhost:8082/auth/login
+
+Após autenticar: 
+
+`Authorization: Bearer TOKEN`
+
+---
+
+# Roadmap do Projeto
+
+## Próximas evoluções da arquitetura:
+
+- Config Server
+- Microservice de Orders
+- Microservice de Notifications
+- Comunicação assíncrona com Kafka
+- Observabilidade com Prometheus + Grafana
+- Docker
+- CI/CD pipeline
+- Deploy em Cloud
+- Objetivo do Projeto
+
+## Este projeto foi desenvolvido com o objetivo de demonstrar conhecimento em:
+
+- Arquitetura de microserviços
+- Design de APIs REST
+- Autenticação segura
+- Spring Cloud
+- Arquitetura escalável de backend
+
+---
+
+# Autor
+
+### Luiz Nicolau Pereira do Carmo
+
+#### Estudante de Engenharia de Software focado em:
+
+Arquitetura de software, desenvolvimento backend com Java, sistemas distribuídos, cloud e DevOps.
+
+## Contato
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Luiz%20Carmo-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/luizcarmo/)
+
+[![Gmail](https://img.shields.io/badge/Email-luizcarmo.dev@gmail.com-D14836?logo=gmail&logoColor=white)](mailto:luizcarmo.dev@gmail.com)
