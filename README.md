@@ -319,7 +319,7 @@ Após autenticar:
 - Deploy em Cloud
 - Objetivo do Projeto
 
-## Este projeto foi desenvolvido com o objetivo de demonstrar conhecimento em:
+### Este projeto foi desenvolvido com o objetivo de demonstrar conhecimento em:
 
 - Arquitetura de microserviços
 - Design de APIs REST
