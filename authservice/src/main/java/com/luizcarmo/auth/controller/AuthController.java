@@ -1,8 +1,8 @@
 package com.luizcarmo.auth.controller;
 
-import com.luizcarmo.auth.dto.*;
 import com.luizcarmo.auth.dto.request.LoginRequest;
 import com.luizcarmo.auth.dto.request.RegisterRequest;
+import com.luizcarmo.auth.dto.response.AuthResponse;
 import com.luizcarmo.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.luizcarmo.auth.dto;
+package com.luizcarmo.auth.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

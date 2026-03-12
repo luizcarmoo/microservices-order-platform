@@ -1,8 +1,8 @@
 package com.luizcarmo.auth.service;
 
-import com.luizcarmo.auth.dto.*;
 import com.luizcarmo.auth.dto.request.LoginRequest;
 import com.luizcarmo.auth.dto.request.RegisterRequest;
+import com.luizcarmo.auth.dto.response.AuthResponse;
 import com.luizcarmo.auth.entity.User;
 import com.luizcarmo.auth.exception.AuthException;
 import com.luizcarmo.auth.repository.UserRepository;
