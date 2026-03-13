@@ -7,6 +7,7 @@
 [![Maven](https://img.shields.io/badge/Build-Maven-blue)]()
 [![Architecture](https://img.shields.io/badge/Architecture-Microservices-purple)]()
 
+
 Plataforma backend baseada em **arquitetura de microserviços**, construída com **Java + Spring**, utilizando **API Gateway**, **Service Discovery** e **autenticação JWT**.
 
 Este projeto foi desenvolvido para demonstrar **boas práticas utilizadas em arquiteturas modernas de backend**, incluindo:
@@ -19,34 +20,44 @@ Este projeto foi desenvolvido para demonstrar **boas práticas utilizadas em arq
 
 ---
 
-# Arquitetura do Sistema
+# Quick Start
 
-Arquitetura baseada em **Spring Cloud Microservices**.
+Executar toda a arquitetura localmente.
 
-            ┌──────────────┐
-            │    Client    │
-            └──────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │  API Gateway │
-            └──────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │  Eureka      │
-            │  Discovery   │
-            └──────┬───────┘
-                   │
-      ┌────────────┴────────────┐
-      ▼                         ▼
-    ┌──────────────┐ ┌──────────────┐
-    │ Auth Service │ │ Future       │
-    │ Services     │ | Orders       │
-    │ JWT + Users  │ │ Notifications│
-    └──────────────┘ └──────────────┘
+1 - Iniciar o Service Discovery
 
-    
+    cd eurekaserver
+    mvn spring-boot:run
+
+2 - Iniciar o Config Server
+
+    cd configserver
+    mvn spring-boot:run
+
+3 - Iniciar o Auth Service
+
+    cd authservice
+    mvn spring-boot:run
+
+4 - Iniciar o API Gateway
+
+    cd apigateway
+    mvn spring-boot:run
+
+Depois acessar:
+
+Gateway:
+
+    http://localhost:8082
+            
+Eureka Dashboard:
+
+    http://localhost:8761
+            
+Auth Service Health:
+
+    http://localhost:8081/actuator/health
+
 ---
 
 # Componentes da Arquitetura
@@ -60,12 +71,19 @@ Responsável por:
 - validação de JWT
 - comunicação com Service Discovery
 
-Porta padrão: `http://localhost:8082`
+Porta padrão: 
+
+    http://localhost:8082
                        
 
-Exemplo de rota: `/auth/** → AUTH-SERVICE`
+Exemplo de rota: 
 
-Com Service Discovery: `lb://AUTH-SERVICE`
+
+    /auth/** → AUTH-SERVICE
+
+Com Service Discovery: 
+
+    lb://AUTH-SERVICE
 
 ---
 
@@ -79,9 +97,14 @@ Responsabilidades:
 - permitir descoberta dinâmica
 - facilitar escalabilidade
 
-Dashboard: `http://localhost:8761`
+Dashboard: 
 
-Serviços registrados: `AUTH-SERVICE` & `API-GATEWAY`
+    http://localhost:8761
+
+Serviços registrados: 
+
+    AUTH-SERVICE
+    API-GATEWAY
 
 
 ---
@@ -138,51 +161,71 @@ src/main/java/com/luizcarmo/auth
       
 ---
 
+# Config Server
+
+O projeto utiliza **Spring Cloud Config Server** para configuração centralizada dos microserviços.
+
+### Benefícios:
+
+- centralização das configurações
+- gerenciamento de ambiente
+- atualização dinâmica de propriedades
+
+Servidor disponível em:
+
+    http://localhost:8888
+
+Exemplo de configuração utilizada nos serviços:
+
+    spring.config.import=optional:configserver:http://localhost:8888
+
+---
+
 # Endpoints da API
 
 ### Registro de usuário
 
 POST:
 
-      /auth/register
+    /auth/register
 
 
 Request:
 
 JSON:
 
-      {
-        "email": "user@email.com",
-        "password": "123456"
-      }
+    {
+      "email": "user@email.com",
+      "password": "123456"
+    }
 
 
 Resposta:
 
 JSON:
 
-      {
-        "token": "jwt-token"
-      }
+    {
+      "token": "jwt-token"
+    }
 
 
 Login:
 
 JSON:
 
-      {
-        "email": "user@email.com",
-        "password": "123456"
-      }
+    {
+      "email": "user@email.com",
+      "password": "123456"
+    }
 
 
 Resposta:
 
 JSON:
 
-      {
-        "token": "jwt-token"
-      }
+    {
+      "token": "jwt-token"
+    }
 
 
 ---
@@ -191,11 +234,11 @@ JSON:
 
 ### O sistema utiliza:
 
-BCrypt
+**BCrypt**
 
 Hash seguro para armazenamento de senhas.
 
-JWT (JSON Web Token)
+**JWT** (JSON Web Token)
 
 Autenticação stateless.
 
@@ -222,13 +265,36 @@ H2 Database (em memória)
 
 Console disponível em: 
 
-      http://localhost:8081/h2-console
+    http://localhost:8081/h2-console
 
 Configuração:
 
-      JDBC URL: jdbc:h2:mem:testdb
-      User: sa
-      Password: (vazio)
+    JDBC URL: jdbc:h2:mem:testdb
+    User: sa
+    Password: (vazio)
+
+---
+
+# Monitoramento
+
+O projeto utiliza **Spring Boot Actuator** para monitoramento dos serviços.
+
+Endpoint de health check:
+
+    http://localhost:8081/actuator/health
+
+Resposta esperada:
+
+    {
+      "status": "UP"
+      ...
+    }
+
+Esse endpoint é utilizado para:
+
+- monitoramento de microserviços
+- health checks
+- integração com ferramentas de observabilidade
 
 ---
 
@@ -242,6 +308,8 @@ Configuração:
 - Spring Data JPA
 - Spring Cloud Gateway
 - Spring Cloud Netflix Eureka
+- Spring Cloud Config
+- Spring Boot Actuator
 
 ### Segurança
 
@@ -256,68 +324,89 @@ Configuração:
 
 ---
 
-# Como executar o projeto
 ## Pré-requisitos
 
 - Java 17
 - Maven
 
-#### 1 - Executar o Service Discovery
+---
 
-      cd eurekaserver
-      mvn spring-boot:run
+# Arquitetura do Sistema
 
-Servidor disponível em:
+#### Arquitetura baseada em Spring Cloud Microservices.
 
-      http://localhost:8761
-
-#### 2 - Executar o Auth Service
-
-      cd authservice
-      mvn spring-boot:run
-
-Disponível em:
-
-      http://localhost:8081
-
-#### 3 - Executar o API Gateway
-
-      cd apigateway
-      mvn spring-boot:run
-
-Disponível em:
-
-      http://localhost:8082
+                        ┌──────────────┐
+                        │    Client    │
+                        └──────┬───────┘
+                               │
+                               ▼
+                        ┌──────────────┐
+                        │  API Gateway │
+                        └──────┬───────┘
+                               │
+                               ▼
+                        ┌──────────────┐
+                        │  Eureka      │
+                        │  Discovery   │
+                        └──────┬───────┘
+                               │
+                  ┌────────────┴────────────┐
+                  ▼                         ▼
+             ┌──────────────┐       ┌──────────────┐
+             │ Auth Service │       │ Future       │
+             │ JWT + Users  │       │ Orders       │
+             │ + Actuator   │       │ Notifications│
+             └──────┬───────┘       └──────────────┘
+                    │
+                    ▼
+             ┌──────────────┐
+             │ ConfigServer │
+             │ Centralized  │
+             │ Configuration│
+             └──────────────┘
 
 ---
 
-# Testando via Gateway
+# Características da Arquitetura
 
-Login:
+Este projeto implementa diversos padrões utilizados em arquiteturas modernas de microserviços.
 
-POST:
+#### API Gateway Pattern
 
-      http://localhost:8082/auth/login
+Centralização de entrada da API utilizando gateway para roteamento e segurança.
 
-Após autenticar: 
+#### Service Discovery Pattern
 
-`Authorization: Bearer TOKEN`
+Serviços são registrados dinamicamente utilizando Eureka.
+
+#### Externalized Configuration
+
+Configurações centralizadas através do Config Server.
+
+#### Stateless Authentication
+
+Autenticação baseada em JWT.
+
+#### Observability
+
+Monitoramento de serviços através do Spring Boot Actuator.
 
 ---
 
 # Roadmap do Projeto
 
-## Próximas evoluções da arquitetura:
+#### Próximas evoluções
 
-- Config Server
-- Microservice de Orders
-- Microservice de Notifications
+- Order Service
+- Notification Service
 - Comunicação assíncrona com Kafka
-- Observabilidade com Prometheus + Grafana
-- Docker
-- CI/CD pipeline
+- Observabilidade completa com Prometheus + Grafana
+- Containerização com Docker
+- Orquestração com Docker Compose
+- Cache distribuído com Redis
+- Resiliência com Circuit Breaker
+- CI/CD Pipeline
 - Deploy em Cloud
-- Objetivo do Projeto
 
 ### Este projeto foi desenvolvido com o objetivo de demonstrar conhecimento em:
 
@@ -326,6 +415,21 @@ Após autenticar:
 - Autenticação segura
 - Spring Cloud
 - Arquitetura escalável de backend
+
+---
+
+# Arquitetura de Produção (planejada)
+
+Este projeto evoluirá para uma arquitetura completa com:
+
+- API Gateway
+- Service Discovery
+- Config Server
+- Autenticação JWT
+- Observabilidade
+- Containers Docker
+- Comunicação assíncrona
+- CI/CD
 
 ---
 
